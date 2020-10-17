@@ -1,4 +1,3 @@
-import numpy as np
 from smtplib import SMTP_SSL as SMTP
 import imaplib
 from email.mime.text import MIMEText

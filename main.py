@@ -24,7 +24,7 @@ class Main():
 
             regarding += "\n\n"
 
-            msg.set_content(regarding.as_string() + mailTxt.as_string())
+            msg.set_content(regarding + mailTxt.as_string())
             
             text = msg.as_string()
             
@@ -55,33 +55,11 @@ class Main():
                               email_from = str(make_header(decode_header(email_message_raw['From'])))
                               # von Edward Chapman -> https://stackoverflow.com/questions/7314942/python-imaplib-to-get-gmail-inbox-subjects-titles-and-sender-name
                               subject = str(email.header.make_header(email.header.decode_header(email_message_raw['Subject'])))
-                              # content = email_message_raw.get_payload(decode=True)
-                              # von Todor Minakov -> https://stackoverflow.com/questions/17874360/python-how-to-parse-the-body-from-a-raw-email-given-that-raw-email-does-not
-                              
-                              b = email.message_from_string(email_message_raw)
-                              body = ""
 
-                              if b.is_multipart():
-                                  for part in b.walk():
-                                      ctype = part.get_content_type()
-                                      cdispo = str(part.get('Content-Disposition'))
-
-                                      # skip any text/plain (txt) attachments
-                                      if ctype == 'text/plain' and 'attachment' not in cdispo:
-                                          body = part.get_payload(decode=True)  # decode
-                                          break
-                              # not multipart - i.e. plain text, no attachments, keeping fingers crossed
-                              else:
-                                  body = b.get_payload(decode=True)
-
-
-               
-            m.close()
-            m.logout()
 
             # txt = "Sehr geehrter Benutzer, \ndie IP-Adresse [218.92.0.208] versuchte sich innerhalb von 5 Minuten 10 Mal erfolglos bei SSH auf mattia-nas anzumelden und wurde um Sun Oct 11 09:52:32 2020 blockiert.\nVon mattia-nas"
             
-            txt = "body"
+            txt = email_message_raw
             regarding = subject
             print("###########################################################")
             print(regarding)
@@ -98,6 +76,9 @@ class Main():
             # regarding = "[192.168.1.142]MONATLICHER FESTPLATTENINTEGRITÄTSBERICHT ZU MATTIA-NAS - IN ORDNUNG"
 
             self.compareText(txt, regarding)
+               
+            m.close()
+            m.logout()
 
 
 
