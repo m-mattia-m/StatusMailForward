@@ -24,7 +24,11 @@ class Main():
 
             regarding += "\n\n"
 
-            msg.set_content(regarding + mailTxt.as_string())
+            body = mailTxt.decode("utf-8")
+
+            msg.set_content(regarding + body)
+            # msg.set_content(mailTxt)
+            # msg.set_content(regarding)
             
             text = msg.as_string()
             
@@ -33,6 +37,8 @@ class Main():
             
             smtp.sendmail(from_email, to_email, text)
             smtp.close()
+
+            print("-->: Mail gesendet")
 
 
       def openMail(self):
@@ -46,34 +52,37 @@ class Main():
             m.login(USERNAME, PASSWORD)
             m.select('INBOX')
 
-            result, data = m.uid('search', None, "UNSEEN")
-            if result == 'OK':
-                  for num in data[0].split()[:5]:
-                        result, data = m.uid('fetch', num, '(RFC822)')
-                        if result == 'OK':
-                              email_message_raw = email.message_from_bytes(data[0][1])
-                              email_from = str(make_header(decode_header(email_message_raw['From'])))
-                              # von Edward Chapman -> https://stackoverflow.com/questions/7314942/python-imaplib-to-get-gmail-inbox-subjects-titles-and-sender-name
-                              subject = str(email.header.make_header(email.header.decode_header(email_message_raw['Subject'])))
+            result, data = m.uid('search', None, "UNSEEN") #UNSEEN
+            for num in data[0].split()[:5]:
+                result, data = m.uid('fetch', num, '(RFC822)')
+                if result == 'OK':
+                    email_message = email.message_from_bytes(data[0][1])
+                    email_from = str(make_header(decode_header(email_message['From'])))
+                    # von Edward Chapman -> https://stackoverflow.com/questions/7314942/python-imaplib-to-get-gmail-inbox-subjects-titles-and-sender-name
+                    subject = str(email.header.make_header(email.header.decode_header(email_message['Subject'])))
+                    b = email_message 
 
+                    if b.is_multipart():
+                        for part in b.walk():
+                            ctype = part.get_content_type()
+                            cdispo = str(part.get('Content-Disposition'))
 
-            # txt = "Sehr geehrter Benutzer, \ndie IP-Adresse [218.92.0.208] versuchte sich innerhalb von 5 Minuten 10 Mal erfolglos bei SSH auf mattia-nas anzumelden und wurde um Sun Oct 11 09:52:32 2020 blockiert.\nVon mattia-nas"
+                            if ctype == 'text/plain' and 'attachment' not in cdispo:
+                                body = part.get_payload(decode=True)  # decode
+                                break
+                    else:
+                        body = b.get_payload(decode=True)
             
-            txt = email_message_raw
             regarding = subject
+            txt = body
+
             print("###########################################################")
             print(regarding)
             print("###########################################################")
             print(txt)
             print("###########################################################")
             
-            # regarding = "[192.168.1.142]IP-ADRESSE [35.228.196.167] WURDE VON SSH AUF MATTIA-NAS BLOCKIERT"
-            # regarding = "[192.168.1.142]IP-ADRESSE [218.92.0.208] WURDE VON SSH AUF MATTIA-NAS BLOCKIERT"
-            # regarding = "[192.168.1.142]IP-ADRESSE [110.36.220.101] WURDE VON SSH AUF MATTIA-NAS BLOCKIERT"
-            # regarding = "[192.168.1.142]IP-ADRESSE [1.1.1.1] WURDE VON SSH AUF MATTIA-NAS BLOCKIERT"
-            # regarding = "[192.168.1.142]IP-ADRESSE [111.111.111.111] WURDE VON SSH AUF MATTIA-NAS BLOCKIERT"
-
-            # regarding = "[192.168.1.142]MONATLICHER FESTPLATTENINTEGRITÄTSBERICHT ZU MATTIA-NAS - IN ORDNUNG"
+            print("-->: Betreff und Text ausgelesen")
 
             self.compareText(txt, regarding)
                
@@ -120,10 +129,10 @@ class Main():
                         bspRegarding = "[192.168.1." + tempLetter1 + "]IP-ADRESSE [" + tempLetter2 + "] WURDE VON SSH AUF MATTIA-NAS BLOCKIERT"
 
             if regarding != bspRegarding:
-                  print("send Mail")
+                  print("-->: Mail verglichen")
                   self.sendMailTo(mailTxt, regarding)
             elif regarding == bspRegarding:
-                  print("send no Mail")
+                  print("-->: Mail nicht verglichen")
             
       
 
