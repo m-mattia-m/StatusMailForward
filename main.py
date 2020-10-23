@@ -9,36 +9,36 @@ class Main():
 
 
       def sendMailTo(self, mailTxt, regarding):
-            host = UserData.host
-            port = UserData.port
-            smtp_user = UserData.user
-            smtp_pass = UserData.password
-            
-            from_email = UserData.from_email
-            to_email = UserData.to_email
-            
-            msg = EmailMessage()
-            msg["FROM"] = from_email
-            msg["To"] = to_email
-            msg["Subject"] = "NAS Status-Report"
+                  host = UserData.host
+                  port = UserData.port
+                  smtp_user = UserData.user
+                  smtp_pass = UserData.password
 
-            regarding += "\n\n"
+                  from_email = UserData.from_email
+                  to_email = UserData.to_email
 
-            body = mailTxt.decode("utf-8")
+                  msg = EmailMessage()
+                  msg["FROM"] = from_email
+                  msg["To"] = to_email
+                  msg["Subject"] = "NAS Status-Report"
 
-            msg.set_content(regarding + body)
-            # msg.set_content(mailTxt)
-            # msg.set_content(regarding)
-            
-            text = msg.as_string()
-            
-            smtp = smtplib.SMTP(host, port)
-            smtp.login(smtp_user, smtp_pass)
-            
-            smtp.sendmail(from_email, to_email, text)
-            smtp.close()
+                  regarding += "\n\n"
 
-            print("-->: Mail gesendet")
+                  body = mailTxt.decode("utf-8")
+
+                  msg.set_content(regarding + body)
+                  # msg.set_content(mailTxt)
+                  # msg.set_content(regarding)
+
+                  text = msg.as_string()
+
+                  smtp = smtplib.SMTP(host, port)
+                  smtp.login(smtp_user, smtp_pass)
+
+                  smtp.sendmail(from_email, to_email, text)
+                  smtp.close()
+
+                  print("-->: Mail gesendet")
 
 
       def openMail(self):
@@ -51,6 +51,9 @@ class Main():
             m = imaplib.IMAP4_SSL(HOST, 993)
             m.login(USERNAME, PASSWORD)
             m.select('INBOX')
+
+            subject = ""
+            body = ""
 
             result, data = m.uid('search', None, "UNSEEN") #UNSEEN
             for num in data[0].split()[:5]:
@@ -72,6 +75,7 @@ class Main():
                                 break
                     else:
                         body = b.get_payload(decode=True)
+
             
             regarding = subject
             txt = body
