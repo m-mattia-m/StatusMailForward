@@ -4,4 +4,4 @@ This is a script that can be executed on a PC or server on a regular basis (exam
 
 The script was one of my first projects, so the code won't be really pretty and good, because I never reworked it either.
 
-© [Mattia Müggler](mattiamueggler.ch)
+© [Mattia Müggler](https://mattiamueggler.ch)
